@@ -3,7 +3,147 @@ package crossword;
 import java.util.Scanner;
 import java.util.Arrays;
 
+
 public class Game {
+	
+	interface Direction {
+		char[][] test(char[] letters);
+	}
+	
+	static class Horizontal {
+		
+		// goes through all possible ways of adding a word horizontally — if impossible, then it returns the original square
+		public char[][] tryHorizontal(int dimension, char[][] square, char[] lettersOfWord) {
+			
+			int[] possibleRows = new int[dimension];
+			int[] possiblePlacements = new int[dimension - lettersOfWord.length + 1]; // columns that word can start in
+			
+			for (int l = 1; l <= possibleRows.length; l++) {
+				possibleRows[l - 1] = l;
+			}
+			
+			for (int m = 1; m <= possiblePlacements.length; m++) {
+				possiblePlacements[m - 1] = m;
+			}
+			
+			possibleRows = randomShuffle(possibleRows);
+			possiblePlacements = randomShuffle(possiblePlacements);
+			
+			for (int a : possibleRows) {
+				for (int b : possiblePlacements) {
+					if (isHorizontalPossible(lettersOfWord, square, a, b)) {
+						square = addHorizontal(lettersOfWord, square, a, b);
+						return square;
+					}
+				}
+			}
+			return square;
+		}
+		
+	}
+	
+	static class Vertical {
+		
+		// goes through all possible ways of adding a word vertically — if impossible, then it returns the original square
+		public char[][] tryVertical(int dimension, char[][] square, char[] lettersOfWord) {
+			int[] possibleColumns = new int[dimension];
+			int[] possiblePlacements = new int[dimension - lettersOfWord.length]; // row that word can start in
+			
+			for (int l = 1; l <= possibleColumns.length; l++) {
+				possibleColumns[l - 1] = l;
+			}
+			
+			for (int m = 1; m <= possiblePlacements.length; m++) {
+				possiblePlacements[m - 1] = m;
+			}
+			
+			possibleColumns = randomShuffle(possibleColumns);
+			possiblePlacements = randomShuffle(possiblePlacements);
+			
+			for (int a : possibleColumns) {
+				for (int b : possiblePlacements) {
+					if (isVerticalPossible(lettersOfWord, square, a, b)) {
+						square = addVertical(lettersOfWord, square, a, b);
+						return square;
+					}
+				}
+			}
+			return square;
+		}
+		
+	}
+	
+	static class DownwardDiagonal {
+		
+		public char[][] tryDownwardDiagonal(int dimension, char[][] square, char[] lettersOfWord) {
+			int[] possibleRows = new int[dimension - lettersOfWord.length + 1]; // row that word can start in
+			int[] possiblePlacements = new int[dimension - lettersOfWord.length + 1]; // column that word can start in
+			
+			for (int l = 1; l <= possibleRows.length; l++) {
+				possibleRows[l - 1] = l;
+			}
+			
+			for (int m = 1; m <= possiblePlacements.length; m++) {
+				possiblePlacements[m - 1] = m;
+			}
+			
+			possibleRows = randomShuffle(possibleRows);
+			possiblePlacements = randomShuffle(possiblePlacements);
+			
+			for (int a : possibleRows) {
+				for (int b : possiblePlacements) {
+					if (isDownwardDiagonalPossible(lettersOfWord, square, a, b)) {
+						square = addDownwardDiagonal(lettersOfWord, square, a, b);
+						return square;
+					}
+				}
+			}
+			return square;
+		}
+		
+	}
+	
+	static class UpwardDiagonal {
+		
+		public char[][] tryUpwardDiagonal(int dimension, char[][] square, char[] lettersOfWord) {
+			int[] possibleRows = new int[dimension - lettersOfWord.length + 1]; // row that word can start in
+			int[] possiblePlacements = new int[dimension - lettersOfWord.length + 1]; // column that word can start in
+			
+			for (int l = dimension; l >= lettersOfWord.length; l--) {
+				possibleRows[dimension - l] = l;
+			}
+			
+			for (int m = 1; m <= possiblePlacements.length; m++) {
+				possiblePlacements[m - 1] = m;
+			}
+			
+			possibleRows = randomShuffle(possibleRows);
+			possiblePlacements = randomShuffle(possiblePlacements);
+			
+			for (int a : possibleRows) {
+				for (int b : possiblePlacements) {
+					if (isUpwardDiagonalPossible(lettersOfWord, square, a, b)) {
+						square = addUpwardDiagonal(lettersOfWord, square, a, b);
+						return square;
+					}
+				}
+			}
+			return square;
+		}
+		
+	}
+	
+	static Horizontal HORIZONTAL = new Horizontal();
+	static Vertical VERTICAL = new Vertical();
+	static DownwardDiagonal DOWNWARDDIAGONAL = new DownwardDiagonal();
+	static UpwardDiagonal UPWARDDIAGONAL = new UpwardDiagonal();
+	
+	
+	
+	/**
+	 * Methods of the 'Game' class
+	 */
+	
 	
 	// randomly shuffles an array
 	public static int[] randomShuffle(int[] arr) {
@@ -57,34 +197,6 @@ public class Game {
 		return square;
 	}
 	
-	// goes through all possible ways of adding a word horizontally — if impossible, then it returns the original square
-	public static char[][] tryHorizontal(int dimension, char[][] square, char[] lettersOfWord) {
-		
-		int[] possibleRows = new int[dimension];
-		int[] possiblePlacements = new int[dimension - lettersOfWord.length + 1]; // columns that word can start in
-		
-		for (int l = 1; l <= possibleRows.length; l++) {
-			possibleRows[l - 1] = l;
-		}
-		
-		for (int m = 1; m <= possiblePlacements.length; m++) {
-			possiblePlacements[m - 1] = m;
-		}
-		
-		possibleRows = randomShuffle(possibleRows);
-		possiblePlacements = randomShuffle(possiblePlacements);
-		
-		for (int a : possibleRows) {
-			for (int b : possiblePlacements) {
-				if (isHorizontalPossible(lettersOfWord, square, a, b)) {
-					square = addHorizontal(lettersOfWord, square, a, b);
-					return square;
-				}
-			}
-		}
-		return square;
-	}
-	
 	// determines if it is possible to add a word vertically at a specific row and column placement
 	public static boolean isVerticalPossible(char[] lettersOfWord, char[][] square, int column, int placement) {
 		for (int i = 0; i < lettersOfWord.length; i++) {
@@ -102,33 +214,6 @@ public class Game {
 			square[placement - 1 + i][column - 1] = lettersOfWord[i];
 		}
 		
-		return square;
-	}
-	
-	// goes through all possible ways of adding a word vertically — if impossible, then it returns the original square
-	public static char[][] tryVertical(int dimension, char[][] square, char[] lettersOfWord) {
-		int[] possibleColumns = new int[dimension];
-		int[] possiblePlacements = new int[dimension - lettersOfWord.length]; // row that word can start in
-		
-		for (int l = 1; l <= possibleColumns.length; l++) {
-			possibleColumns[l - 1] = l;
-		}
-		
-		for (int m = 1; m <= possiblePlacements.length; m++) {
-			possiblePlacements[m - 1] = m;
-		}
-		
-		possibleColumns = randomShuffle(possibleColumns);
-		possiblePlacements = randomShuffle(possiblePlacements);
-		
-		for (int a : possibleColumns) {
-			for (int b : possiblePlacements) {
-				if (isVerticalPossible(lettersOfWord, square, a, b)) {
-					square = addVertical(lettersOfWord, square, a, b);
-					return square;
-				}
-			}
-		}
 		return square;
 	}
 	
@@ -152,31 +237,6 @@ public class Game {
 		return square;
 	}
 	
-	public static char[][] tryDownwardDiagonal(int dimension, char[][] square, char[] lettersOfWord) {
-		int[] possibleRows = new int[dimension - lettersOfWord.length + 1]; // row that word can start in
-		int[] possiblePlacements = new int[dimension - lettersOfWord.length + 1]; // column that word can start in
-		
-		for (int l = 1; l <= possibleRows.length; l++) {
-			possibleRows[l - 1] = l;
-		}
-		
-		for (int m = 1; m <= possiblePlacements.length; m++) {
-			possiblePlacements[m - 1] = m;
-		}
-		
-		possibleRows = randomShuffle(possibleRows);
-		possiblePlacements = randomShuffle(possiblePlacements);
-		
-		for (int a : possibleRows) {
-			for (int b : possiblePlacements) {
-				if (isDownwardDiagonalPossible(lettersOfWord, square, a, b)) {
-					square = addDownwardDiagonal(lettersOfWord, square, a, b);
-					return square;
-				}
-			}
-		}
-		return square;
-	}
 	
 	// determines if it is possible to add a word upward diagonally (bottom left to top right) at a specific row and column placement
 		public static boolean isUpwardDiagonalPossible(char[] lettersOfWord, char[][] square, int row, int placement) {
@@ -198,34 +258,8 @@ public class Game {
 			return square;
 		}
 		
-		public static char[][] tryUpwardDiagonal(int dimension, char[][] square, char[] lettersOfWord) {
-			int[] possibleRows = new int[dimension - lettersOfWord.length + 1]; // row that word can start in
-			int[] possiblePlacements = new int[dimension - lettersOfWord.length + 1]; // column that word can start in
-			
-			for (int l = dimension; l >= lettersOfWord.length; l--) {
-				possibleRows[dimension - l] = l;
-			}
-			
-			for (int m = 1; m <= possiblePlacements.length; m++) {
-				possiblePlacements[m - 1] = m;
-			}
-			
-			possibleRows = randomShuffle(possibleRows);
-			possiblePlacements = randomShuffle(possiblePlacements);
-			
-			for (int a : possibleRows) {
-				for (int b : possiblePlacements) {
-					if (isUpwardDiagonalPossible(lettersOfWord, square, a, b)) {
-						square = addUpwardDiagonal(lettersOfWord, square, a, b);
-						return square;
-					}
-				}
-			}
-			return square;
-		}
-		
 	// adds all words to the square — if it is unable to, it returns the original square with only stars
-	public static char[][] addAllWords(String[] words, char[][] square) {
+	public static char[][] addAllWords(String[] words, char[][] square, int dimension) {
 		
 		char[][] updatedSquare = createSquare(square.length);
 		
@@ -239,74 +273,42 @@ public class Game {
 			
 			String word = wordsFwdAndBkwd[randomBinary][j];
 
-		// Randomize word direction and placement
-			char[] lettersOfWord = new char[word.length()];
-			lettersOfWord = word.toCharArray();
-			int[] possibleDirections = {1, 2, 3, 4};
+			// Randomize word direction and placement
+			final char[] lettersOfWord = word.toCharArray();
+			int[] possibleDirections = {0, 1, 2, 3};
 			possibleDirections = randomShuffle(possibleDirections);
 			
+			Direction[] tryDirections = {
+					new Direction() { public char[][] test(char[] letters) { 
+						return HORIZONTAL.tryHorizontal(dimension, updatedSquare, letters); } },
+					new Direction() { public char[][] test(char[] letters) { 
+						return VERTICAL.tryVertical(dimension, updatedSquare, letters); } },
+					new Direction() { public char[][] test(char[] letters) { 
+						return DOWNWARDDIAGONAL.tryDownwardDiagonal(dimension, updatedSquare, letters); } },
+					new Direction() { public char[][] test(char[] letters) { 
+						return UPWARDDIAGONAL.tryUpwardDiagonal(dimension, updatedSquare, letters); } }
+				};
+			
 			for (int k = 0; k < possibleDirections.length; k++) { // try a different case if the first one(s) doesn't work
-
-				switch (possibleDirections[k]) {
 				
-				// HORIZONTAL
-				case 1:
-					tryHorizontal(square.length, updatedSquare, lettersOfWord);
-					if (Arrays.deepEquals(updatedSquare, square)) {
-						char[] lettersOfWordBackwards = new char[word.length()];
-						lettersOfWordBackwards = reverseSort(lettersOfWord);
-						tryHorizontal(square.length, updatedSquare, lettersOfWordBackwards);
-					}
-					
-					break;
-					
-				// VERTICAL
-				case 2:
-					tryVertical(square.length, updatedSquare, lettersOfWord);
-					if (Arrays.deepEquals(updatedSquare, square)) {
-						char[] lettersOfWordBackwards = new char[word.length()];
-						lettersOfWordBackwards = reverseSort(lettersOfWord);
-						tryVertical(square.length, updatedSquare, lettersOfWordBackwards);
-					}
-					
-					break;
-					
-				// DOWNWARD DIAGONAL
-				case 3:
-					tryDownwardDiagonal(square.length, updatedSquare, lettersOfWord);
-					if (Arrays.deepEquals(updatedSquare, square)) {
-						char[] lettersOfWordBackwards = new char[word.length()];
-						lettersOfWordBackwards = reverseSort(lettersOfWord);
-						tryDownwardDiagonal(square.length, updatedSquare, lettersOfWordBackwards);
-					}
-					
-					break;
-					
-				// UPWARD DIAGONAL
-				case 4:
-					tryUpwardDiagonal(square.length, updatedSquare, lettersOfWord);
-					if (Arrays.deepEquals(updatedSquare, square)) {
-						char[] lettersOfWordBackwards = new char[word.length()];
-						lettersOfWordBackwards = reverseSort(lettersOfWord);
-						tryUpwardDiagonal(square.length, updatedSquare, lettersOfWordBackwards);
-					}
-					
-					break;
+				tryDirections[possibleDirections[k]].test(lettersOfWord);
+				if (Arrays.deepEquals(updatedSquare, square)) // try adding the word reversed if it didn't fit
+					tryDirections[possibleDirections[k]].test(reverseSort(lettersOfWord));
 				
-				} // end of switch block
-				
-				if (Arrays.deepEquals(updatedSquare, square) && k == 3) { // word cannot be added in any direction or placement
+				if (Arrays.deepEquals(updatedSquare, square) && k == 3) { // All directions and placements have been exhausted, and the word couldn't be added
 					return createSquare(square.length);
 				} else if (! Arrays.deepEquals(updatedSquare, square)) {
 					// set 'square' array equal to 'updatedSquare' array
 					for (int i = 0; i < updatedSquare.length; i++) {
 						square[i] = Arrays.copyOf(updatedSquare[i], square.length);
 					}
-					break; // out of inner for loop
+					break; // out of inner for-loop
 				}
 				
-			}
-		}
+			} // end inner for-loop
+			
+		} // end outer for-loop
+		
 		return square;
 	}
 		
@@ -351,9 +353,6 @@ public class Game {
 	}
 	
 	
-	/*
-	 *  MAIN METHOD
-	 */
 	public static void main(String[] args) {
 		
 		System.out.println("* * * CROSSWORD PUZZLE * * * \n");
@@ -412,14 +411,14 @@ public class Game {
 			// create and populate 'square' and 'updatedSquare' 2D arrays with stars
 			square = createSquare(dimension);
 			updatedSquare = createSquare(dimension);
-			updatedSquare = addAllWords(words, updatedSquare);
+			updatedSquare = addAllWords(words, updatedSquare, dimension);
 			
 			if (!Arrays.deepEquals(updatedSquare, square)) {
 			}
 			
 			// if dimension is too small to fit all words, increment dimension and try again
 			if (Arrays.deepEquals(updatedSquare, square)) {
-				dimension += 1;
+				dimension++;
 			} else {
 				square = updatedSquare;
 				break; // out of do–while loop
