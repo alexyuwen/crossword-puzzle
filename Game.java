@@ -190,10 +190,8 @@ public class Game {
 	
 	// add a word horizontally
 	public static char[][] addHorizontal(char[] lettersOfWord, char[][] square, int row, int placement) {
-		for (int i = 0; i < lettersOfWord.length; i++) {
+		for (int i = 0; i < lettersOfWord.length; i++)
 			square[row - 1][placement - 1 + i] = lettersOfWord[i];
-		}
-		
 		return square;
 	}
 	
@@ -210,10 +208,8 @@ public class Game {
 	
 	// add a word vertically
 	public static char[][] addVertical(char[] lettersOfWord, char[][] square, int column, int placement) {
-		for (int i = 0; i < lettersOfWord.length; i++) {
+		for (int i = 0; i < lettersOfWord.length; i++)
 			square[placement - 1 + i][column - 1] = lettersOfWord[i];
-		}
-		
 		return square;
 	}
 	
@@ -230,10 +226,8 @@ public class Game {
 		
 	// add a word downward diagonally
 	public static char[][] addDownwardDiagonal(char[] lettersOfWord, char[][] square, int row, int placement) {
-		for (int i = 0; i < lettersOfWord.length; i++) {
+		for (int i = 0; i < lettersOfWord.length; i++)
 			square[row - 1 + i][placement - 1 + i] = lettersOfWord[i];
-		}
-		
 		return square;
 	}
 	
@@ -251,10 +245,8 @@ public class Game {
 			
 		// add a word upward diagonally
 		public static char[][] addUpwardDiagonal(char[] lettersOfWord, char[][] square, int row, int placement) {
-			for (int i = 0; i < lettersOfWord.length; i++) {
+			for (int i = 0; i < lettersOfWord.length; i++)
 				square[row - 1 - i][placement - 1 + i] = lettersOfWord[i];
-			}
-			
 			return square;
 		}
 		
@@ -263,21 +255,11 @@ public class Game {
 		
 		char[][] updatedSquare = createSquare(square.length);
 		
-		String[][] wordsFwdAndBkwd = new String[2][words.length];
-		wordsFwdAndBkwd[0] = words;
-		wordsFwdAndBkwd[1] = reverseElements(words);
-		
-		for (int j = 0; j < words.length; j++) {
-			int randomBinary;
-			randomBinary = (int) (2 * Math.random());
+		for (int j = 0; j < words.length; j++) { // for each word in list
 			
-			String word = wordsFwdAndBkwd[randomBinary][j];
+			String word = words[j];
 
-			// Randomize word direction and placement
-			final char[] lettersOfWord = word.toCharArray();
-			int[] possibleDirections = {0, 1, 2, 3};
-			possibleDirections = randomShuffle(possibleDirections);
-			
+			// array of anonymous inner classes
 			Direction[] tryDirections = {
 					new Direction() { public char[][] test(char[] letters) { 
 						return HORIZONTAL.tryHorizontal(dimension, updatedSquare, letters); } },
@@ -289,11 +271,23 @@ public class Game {
 						return UPWARDDIAGONAL.tryUpwardDiagonal(dimension, updatedSquare, letters); } }
 				};
 			
+			// Randomize word direction
+			int[] possibleDirections = {0, 1, 2, 3};
+			possibleDirections = randomShuffle(possibleDirections);
+			
+			// Randomize forward/backward
+			char[][] letters = new char[2][word.length()];
+			letters[0] = word.toCharArray();
+			letters[1] = reverseSort(letters[0]);
+			int randomBinary;
+			
 			for (int k = 0; k < possibleDirections.length; k++) { // try a different case if the first one(s) doesn't work
 				
-				tryDirections[possibleDirections[k]].test(lettersOfWord);
+				randomBinary = (int) (2 * Math.random());
+				tryDirections[possibleDirections[k]].test(letters[randomBinary]);
+				
 				if (Arrays.deepEquals(updatedSquare, square)) // try adding the word reversed if it didn't fit
-					tryDirections[possibleDirections[k]].test(reverseSort(lettersOfWord));
+					tryDirections[possibleDirections[k]].test(letters[randomBinary ^= 1]); // uses XOR operator to flip the boolean value
 				
 				if (Arrays.deepEquals(updatedSquare, square) && k == 3) { // All directions and placements have been exhausted, and the word couldn't be added
 					return createSquare(square.length);
@@ -310,22 +304,6 @@ public class Game {
 		} // end outer for-loop
 		
 		return square;
-	}
-		
-	public static String[] reverseElements(String[] words) { // keyword argument for addAllWords ?! // duplicate of char[] reverseSort, how to consolidate???
-		String[] wordsBackwards = new String[words.length];
-		wordsBackwards = Arrays.copyOf(words, words.length);
-		for (int i = 0; i < words.length; i++) {
-			String reversed = ""; 
-			for (int j = 0; j < words[i].length(); j++) {
-				reversed = reversed + words[i].charAt(words[i].length() - 1 - j);
-			}
-			
-			wordsBackwards[i] = reversed;
-		}
-		
-		return wordsBackwards;
-		
 	}
 	
 	// fills in rest of square with random letters
@@ -383,7 +361,7 @@ public class Game {
 		// use at end of program to display words to user in the order that they were inputed
 		String[] wordsToDisplay = Arrays.copyOf(words, numWords);
 		
-		// sort Array from longest to shortest words using bubble sort
+		// sort 'words' array from longest to shortest words using bubble sort
 		String[] wordsCopy;
 		do {
 			wordsCopy = Arrays.copyOf(words, numWords);
@@ -427,7 +405,7 @@ public class Game {
 		while (true);
 		
 
-		
+		// Print crossword puzzle along with list of words
 		System.out.println("\n");
 		displaySquare(fillIn(square));
 		System.out.println("\nWords: \n");
