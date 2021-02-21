@@ -1,3 +1,4 @@
+package crossword;
 
 import java.util.Scanner;
 import java.util.Arrays;
@@ -73,7 +74,6 @@ public class Game {
 		possibleRows = randomShuffle(possibleRows);
 		possiblePlacements = randomShuffle(possiblePlacements);
 		
-		outerLoop:
 		for (int a : possibleRows) {
 			for (int b : possiblePlacements) {
 				if (isHorizontalPossible(lettersOfWord, square, a, b)) {
@@ -121,7 +121,6 @@ public class Game {
 		possibleColumns = randomShuffle(possibleColumns);
 		possiblePlacements = randomShuffle(possiblePlacements);
 		
-		outerLoop:
 		for (int a : possibleColumns) {
 			for (int b : possiblePlacements) {
 				if (isVerticalPossible(lettersOfWord, square, a, b)) {
@@ -168,7 +167,6 @@ public class Game {
 		possibleRows = randomShuffle(possibleRows);
 		possiblePlacements = randomShuffle(possiblePlacements);
 		
-		outerLoop:
 		for (int a : possibleRows) {
 			for (int b : possiblePlacements) {
 				if (isDownwardDiagonalPossible(lettersOfWord, square, a, b)) {
@@ -215,7 +213,6 @@ public class Game {
 			possibleRows = randomShuffle(possibleRows);
 			possiblePlacements = randomShuffle(possiblePlacements);
 			
-			outerLoop:
 			for (int a : possibleRows) {
 				for (int b : possiblePlacements) {
 					if (isUpwardDiagonalPossible(lettersOfWord, square, a, b)) {
@@ -380,10 +377,11 @@ public class Game {
 				lengthOfLongest = words[i].length();
 			}
 		}
+		scanner.close();
 		
 		// copies and truncates the 'words' array, leaving off the final element 'q'
 		words = Arrays.copyOf(words, numWords);
-		// use at end of program to display words to user in the order that they inputted them
+		// use at end of program to display words to user in the order that they were inputed
 		String[] wordsToDisplay = Arrays.copyOf(words, numWords);
 		
 		// sort Array from longest to shortest words using bubble sort
@@ -405,31 +403,7 @@ public class Game {
 			words[i] = words[i].toUpperCase();
 		}
 		
-		int dimension = 0;
-		
-/*		// Prompt user for dimensions, handle exceptions
-		System.out.print("How many characters should be in each line? ");
-		
-		do {
-		
-			try {
-				dimension = scanner.nextInt();
-				if (dimension < Math.min(10, lengthOfLongest) || dimension > 25)
-					throw new Exception("Out of range.");
-				break; // exit while loop if no exception is thrown
-			}
-			catch (Exception excpt) {
-				System.out.printf("Please enter a number between %d and 25: ", Math.min(10, lengthOfLongest));
-				scanner.nextLine();
-			}
-//			catch (Throwable thrw) { // useful as last catch block as it catches all errors and exceptions
-//				System.out.println("HI!");
-//			}
-			
-		}
-		while (true);
-*/
-		dimension = lengthOfLongest;
+		int dimension = lengthOfLongest;
 		
 		char[][] square;
 		char[][] updatedSquare;
@@ -443,9 +417,9 @@ public class Game {
 			if (!Arrays.deepEquals(updatedSquare, square)) {
 			}
 			
-			// if dimension is too small to successfully add all words, increment dimension and try again
+			// if dimension is too small to fit all words, increment dimension and try again
 			if (Arrays.deepEquals(updatedSquare, square)) {
-				dimension = dimension + 1;
+				dimension += 1;
 			} else {
 				square = updatedSquare;
 				break; // out of do–while loop
@@ -456,7 +430,6 @@ public class Game {
 
 		
 		System.out.println("\n");
-		// displaySquare(square);
 		displaySquare(fillIn(square));
 		System.out.println("\nWords: \n");
 		System.out.println(Arrays.toString(wordsToDisplay));
