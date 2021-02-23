@@ -330,8 +330,49 @@ public class Game {
 		}
 	}
 	
+	// sorts an array of words in order of decreasing word length
+	private static void mergeSort(String[] words) {
+		String[] temp = new String[words.length];
+		mergeSort(words, temp, 0, words.length - 1);	
+	}
+	
+	// overloaded method
+	private static void mergeSort(String[] words, String[] temp, int leftStart, int rightEnd) {
+		if (leftStart >= rightEnd) // base case
+			return;
+		int middle = leftStart + (rightEnd - leftStart) / 2;
+		mergeSort(words, temp, leftStart, middle);
+		mergeSort(words, temp, middle + 1, rightEnd);
+		mergeHalves(words, temp, leftStart, rightEnd);
+	}
+	
+	private static void mergeHalves(String[] words, String[] temp, int leftStart, int rightEnd) {
+		int leftEnd = leftStart + (rightEnd - leftStart) / 2;
+		int left = leftStart;
+		int right = leftEnd + 1;
+		int index = leftStart;
+		
+		while (left <= leftEnd && right <= rightEnd) {
+			if (words[left].length() > words[right].length()) {
+				temp[index] = words[left];
+				left++;
+			}
+			else {
+				temp[index] = words[right];
+				right++;
+			}
+			index++;
+		}
+		
+		System.arraycopy(words, left, temp, index, leftEnd - left + 1);
+		System.arraycopy(words, right, temp, index, rightEnd - right + 1);
+		System.arraycopy(temp, leftStart, words, leftStart, rightEnd - leftStart + 1);
+	}
 	
 	public static void main(String[] args) {
+		String[] arr = {"cat", "hi", "balloon", "tiger", "p", "mmmmmmmmmm"};
+		mergeSort(arr);
+		System.out.println(Arrays.toString(arr));
 		
 		System.out.println("* * * CROSSWORD PUZZLE * * * \n");
 		
@@ -361,19 +402,8 @@ public class Game {
 		// use at end of program to display words to user in the order that they were inputed
 		String[] wordsToDisplay = Arrays.copyOf(words, numWords);
 		
-		// sort 'words' array from longest to shortest words using bubble sort
-		String[] wordsCopy;
-		do {
-			wordsCopy = Arrays.copyOf(words, numWords);
-			for (int j = 0; j < numWords - 1; j++) {
-				if (words[j].length() < words[j+1].length()) {
-					String temp = words[j];
-					words[j] = words[j+1];
-					words[j+1] = temp;
-				}
-			}
-		}
-		while (! Arrays.equals(words, wordsCopy));
+		// sort 'words' array from longest to shortest words using mergesort
+		mergeSort(words);
 		
 		// capitalizes all words
 		for (int i = 0; i < words.length; i++) {
